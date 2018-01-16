@@ -77,7 +77,8 @@ public class OicSecurityRealm extends SecurityRealm {
 	private static final Logger LOGGER = Logger.getLogger(OicSecurityRealm.class.getName());
 
     private static final JsonFactory JSON_FACTORY = new JacksonFactory();
-    private final HttpTransport httpTransport;
+
+    private transient HttpTransport httpTransport;
 
     private final String clientId;
     private final Secret clientSecret;
@@ -120,8 +121,13 @@ public class OicSecurityRealm extends SecurityRealm {
         this.logoutFromOpenidProvider = logoutFromOpenidProvider;
         this.endSessionUrl = endSessionUrl;
         this.postLogoutRedirectUrl = postLogoutRedirectUrl;
+    }
 
-        this.httpTransport = constructHttpTransport(this.disableSslVerification);
+    private HttpTransport getHttpTransport() {
+        if (httpTransport == null) {
+           httpTransport = constructHttpTransport(disableSslVerification);
+        }
+        return httpTransport;
     }
 
     private HttpTransport constructHttpTransport(boolean disableSslVerification) {
@@ -309,7 +315,7 @@ public class OicSecurityRealm extends SecurityRealm {
 
         final AuthorizationCodeFlow flow = new AuthorizationCodeFlow.Builder(
                 BearerToken.queryParameterAccessMethod(),
-                httpTransport,
+                getHttpTransport(),
                 JSON_FACTORY,
                 new GenericUrl(tokenServerUrl),
                 new ClientParametersAuthentication(

@@ -1,0 +1,2 @@
+org.acegisecurity.GrantedAuthorityImpl
+org.jenkinsci.plugins.oic.OicUserProperty
